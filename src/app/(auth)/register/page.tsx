@@ -43,8 +43,6 @@ const LoginForm = () => {
     fetchDeviceInfo();
   }, [fetchDeviceInfo]);
 
-  console.log(device);
-
   const navigate = useRouter();
   const setTokens = useAuthStore((s) => s.setTokens);
   const { AUTH_REGISTER } = authRequest();
