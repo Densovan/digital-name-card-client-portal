@@ -1,6 +1,7 @@
 export interface ICardResponse {
   message: string;
   card: {
+    web_site: string | undefined;
     id: string;
     gender: GenderType;
     dob: string;
@@ -18,6 +19,7 @@ export interface ICardResponse {
     socialLinks: SocialLink[];
     job: string;
     bio: string;
+    company: string;
   };
 }
 export interface SocialLink {
@@ -40,6 +42,9 @@ export interface CreateCardType {
   phone: string;
   card_type: string;
   social: Social[];
+  web_site: string;
+  job: string;
+  bio: string;
 }
 interface Social {
   platform: string;

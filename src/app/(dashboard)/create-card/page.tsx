@@ -1,6 +1,6 @@
 "use client";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import React, { useState, use, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,23 +22,23 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Trash2, Plus } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-
 import { cardRequest } from "@/lib/api/card-api";
-import { CreateCardType, SocialLink } from "@/types/card-type";
+import { useMutation } from "@tanstack/react-query";
+import { CreateCardType } from "@/types/card-type";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 const formSchema = z.object({
   gender: z.enum(["male", "female"], { required_error: "Gender is required" }),
   nationality: z.string().min(1),
   dob: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date format",
   }),
-  address: z.string().min(1),
-  phone: z.string().min(1),
   bio: z.string().min(1),
-  web_site: z.string(),
-  job: z.string(),
-  company: z.string(),
+  web_site: z.string().min(1),
+  job: z.string().min(1),
+  address: z.string().min(1),
+  company: z.string().min(1),
+  phone: z.string().min(1),
   card_type: z.enum(["Modern", "Minimal", "Corporate"]),
   social: z.array(
     z.object({
@@ -52,51 +52,27 @@ const formSchema = z.object({
 
 type ProfileFormType = z.infer<typeof formSchema>;
 
-export default function ProfileForm({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const router = useRouter();
-  const { id } = use(params);
-  const { GET_CARD, UPDATE_CARD } = cardRequest();
-  const {
-    data: cardData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["card"],
-    queryFn: async () => GET_CARD(id),
-    enabled: !!id,
-  });
+// const DEFAULT_ICON =
+//   "https://cdns-icons-png.flaticon.com/512/15047/15047435.png";
 
-  const updateCardMutation = useMutation({
-    mutationKey: ["update_card"],
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: CreateCardType;
-    }) => UPDATE_CARD(id, payload),
-    onSuccess: () => {
-      router.push("/profile");
-    },
-  });
+export default function ProfileForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const { CREATE_CARD } = cardRequest();
 
   const form = useForm<ProfileFormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       gender: "male",
-      nationality: "CAMBODIAN",
+      nationality: "Cambodian",
       dob: "",
       address: "",
       phone: "",
       card_type: "Minimal",
-      bio: "",
-      job: "",
       web_site: "",
+      bio: "",
       company: "",
+      job: "",
       social: [{ platform: "", icon: "", url: "" }],
     },
   });
@@ -107,6 +83,8 @@ export default function ProfileForm({
     name: "social",
   });
 
+  // const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  // const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [socialIcons, setSocialIcons] = useState<Record<number, File | null>>(
     {}
   );
@@ -118,48 +96,38 @@ export default function ProfileForm({
     return allowedTypes.includes(file.type) && file.size <= maxSize;
   };
 
-  useEffect(() => {
-    if (cardData) {
-      form.reset({
-        gender: cardData?.card.gender,
-        job: cardData?.card.job,
-        web_site: cardData?.card?.web_site,
-        bio: cardData?.card?.bio,
-        nationality: cardData?.card.nationality || "USA",
-        dob: cardData?.card.dob || "",
-        address: cardData?.card.address || "",
-        phone: cardData?.card.phone || "",
-        card_type: cardData?.card.card_type || "Minimal",
-        company: cardData?.card?.company,
-        social:
-          cardData?.card.socialLinks?.length > 0
-            ? cardData?.card.socialLinks.map((item: SocialLink) => ({
-                id: item.id,
-                platform: item.platform,
-                icon: item.icon,
-                url: item.url,
-              }))
-            : [{ platform: "", icon: "", url: "" }],
-      });
-
-      //   if (cardData?.card.avatar) {
-      //     setAvatarPreview(cardData?.card.avatar);
-      //   }
-
-      const previews: Record<number, string> = {};
-      cardData?.card.socialLinks?.forEach((item: SocialLink, index: number) => {
-        if (item.icon) previews[index] = item.icon;
-      });
-      setIconPreviews(previews);
-    }
-  }, [cardData, form]);
-  if (isLoading) {
-    return "loading";
-  } else if (isError) {
-    return "error";
-  }
+  const createCardMutation = useMutation({
+    mutationKey: ["crate_card"],
+    mutationFn: (payload: CreateCardType) => CREATE_CARD(payload),
+    onSuccess: () => {
+      form.reset();
+      // setAvatarFile(null);
+      // setAvatarPreview(null);
+      setSocialIcons({});
+      setIconPreviews({});
+      router.push("/profile");
+    },
+  });
 
   const onSubmit = async (values: ProfileFormType) => {
+    setIsSubmitting(true);
+    // let avatarUrl = avatarPreview;
+
+    // Upload new avatar only if new file is selected
+    // if (avatarFile) {
+    //   const formData = new FormData();
+    //   formData.append("image", avatarFile);
+    //   const res = await fetch(
+    //     "http://localhost:8000/api/v1/upload/upload-image",
+    //     {
+    //       method: "POST",
+    //       body: formData,
+    //     }
+    //   );
+    //   const data = await res.json();
+    //   avatarUrl = data.url;
+    // }
+
     // Upload new icons only if new files selected
     const updatedSocial = await Promise.all(
       values.social.map(async (item, index) => {
@@ -188,41 +156,90 @@ export default function ProfileForm({
 
     const finalPayload = {
       ...values,
+      // avatar: avatarUrl,
       social: updatedSocial,
     };
-    updateCardMutation.mutate({ id, payload: finalPayload });
+    createCardMutation.mutate(finalPayload);
 
     console.log("Final Payload:", finalPayload);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br  p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-sm mx-auto space-y-4">
         <Form {...form}>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6 max-w-2xl mx-auto"
           >
+            {/* Avatar Upload */}
+            {/* <div className="flex flex-col items-center space-y-2">
+              <label
+                htmlFor="avatarUpload"
+                className="cursor-pointer relative group"
+              >
+                <div className="w-24 h-24 rounded-full border overflow-hidden bg-gray-100">
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      + Avatar
+                    </div>
+                  )}
+                </div>
+                {avatarPreview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarFile(null);
+                      setAvatarPreview(null);
+                    }}
+                    className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
+                  >
+                    ✕
+                  </button>
+                )}
+              </label>
+              <Input
+                id="avatarUpload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file && isValidImage(file)) {
+                    setAvatarFile(file);
+                    setAvatarPreview(URL.createObjectURL(file));
+                  } else {
+                    alert("Avatar must be an image under 2MB");
+                  }
+                }}
+              />
+            </div> */}
+
             {/* Form Inputs */}
             <FormField
               control={control}
-              name="card_type"
+              name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Card Type</FormLabel>
+                  <FormLabel>Gender</FormLabel>
                   <Select
-                    value={field.value} // ✅ bind controlled value
                     onValueChange={field.onChange}
+                    defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Card Type" />
+                        <SelectValue placeholder="Select Gender" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Modern">Modern</SelectItem>
-                      <SelectItem value="Minimal">Minimal</SelectItem>
-                      <SelectItem value="Corporate">Corporate</SelectItem>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -260,32 +277,17 @@ export default function ProfileForm({
 
             <FormField
               control={control}
-              name="address"
+              name="job"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>Job</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Address" />
+                    <Input {...field} placeholder="Job" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bio</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Bio" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={control}
               name="company"
@@ -294,20 +296,6 @@ export default function ProfileForm({
                   <FormLabel>Company</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Company" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="job"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Job</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Job" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -327,6 +315,33 @@ export default function ProfileForm({
                 </FormItem>
               )}
             />
+            <FormField
+              control={control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bio</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Bio" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Address" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={control}
@@ -337,6 +352,32 @@ export default function ProfileForm({
                   <FormControl>
                     <Input {...field} placeholder="Phone" />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="card_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Card Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Card Type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Modern">Modern</SelectItem>
+                      <SelectItem value="Minimal">Minimal</SelectItem>
+                      <SelectItem value="Corporate">Corporate</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -408,7 +449,7 @@ export default function ProfileForm({
                         )}
                       </label>
 
-                      <input
+                      <Input
                         id={`icon-upload-${index}`}
                         type="file"
                         accept="image/*"
@@ -475,8 +516,14 @@ export default function ProfileForm({
               </Button>
             </div>
 
-            <Button type="submit" className="w-full">
-              Submit
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting || createCardMutation.isPending}
+            >
+              {isSubmitting || createCardMutation.isPending
+                ? "Creating..."
+                : "Create"}
             </Button>
           </form>
         </Form>

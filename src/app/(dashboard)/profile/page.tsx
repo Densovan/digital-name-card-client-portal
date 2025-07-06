@@ -130,17 +130,17 @@ export default function Component() {
               <div key={idx}>
                 {card.card_type === "Minimal" && (
                   <div>
-                    <MinimalCard me={me} />
+                    <MinimalCard me={me} card={card} idx={idx} />
                   </div>
                 )}
-                {card.card_type === "Minimal" && (
+                {card.card_type === "Modern" && (
                   <div>
-                    <ModernCard me={me} />
+                    <ModernCard me={me} card={card} idx={idx} />
                   </div>
                 )}
-                {card.card_type === "Minimal" && (
+                {card.card_type === "Corporate" && (
                   <div>
-                    <CorporateCard me={me} />
+                    <CorporateCard me={me} card={card} idx={idx} />
                   </div>
                 )}
               </div>

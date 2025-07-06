@@ -16,10 +16,13 @@ export const cardRequest = () => {
       data: payload,
     });
   };
-  const UPDATE_CARD = async (id: string, payload: CreateCardType) => {
+  const UPDATE_CARD = async (
+    id: string,
+    payload: CreateCardType
+  ): Promise<ICardResponse> => {
     return await request({
-      url: `/card/update-card${id}`,
-      method: "POST",
+      url: `/card/update-card/${id}`,
+      method: "PUT",
       data: payload,
     });
   };
