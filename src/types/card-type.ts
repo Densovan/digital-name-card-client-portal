@@ -16,6 +16,8 @@ export interface ICardResponse {
     updated_at: string;
     created_at: string;
     socialLinks: SocialLink[];
+    job: string;
+    bio: string;
   };
 }
 export interface SocialLink {
