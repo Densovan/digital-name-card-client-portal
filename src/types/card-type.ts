@@ -29,3 +29,18 @@ export interface SocialLink {
 }
 export type CardType = "Minimal" | "Modern" | "Corporate";
 export type GenderType = "male" | "female";
+
+export interface CreateCardType {
+  gender: string;
+  nationality: string;
+  dob: string;
+  address: string;
+  phone: string;
+  card_type: string;
+  social: Social[];
+}
+interface Social {
+  platform: string;
+  icon: string;
+  url: string;
+}
