@@ -11,6 +11,7 @@ import { CardItem } from "@/types/user-type";
 import ModernCard from "@/components/modern-card";
 import MinimalCard from "@/components/minimal-card";
 import CorporateCard from "@/components/corporate-card";
+import Link from "next/link";
 
 export default function Component() {
   const { GET_ME } = userRequest();
@@ -114,9 +115,11 @@ export default function Component() {
                   <Edit3 className="w-4 h-4 mr-2" />
                   Edit Profile
                 </Button>
-                <Button className="w-full" variant="outline" size="icon">
-                  Create Card
-                </Button>
+                <Link href="/create-card">
+                  <Button className="w-full" variant="outline" size="icon">
+                    Create Card
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

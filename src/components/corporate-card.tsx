@@ -93,23 +93,21 @@ const CorporateCard = ({
                     <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-xl p-3 border border-purple-400/30">
                       <Phone className="w-4 h-4 text-yellow-400 mb-1" />
                       <p className="text-xs text-purple-200 mb-1">Call Me</p>
-                      <p className="text-sm text-white font-mono text-xs">
+                      <p className="text-sm text-white font-mono">
                         {card.phone}
                       </p>
                     </div>
                     <div className="bg-gradient-to-br from-pink-500/20 to-orange-500/20 backdrop-blur-sm rounded-xl p-3 border border-pink-400/30">
                       <Mail className="w-4 h-4 text-cyan-400 mb-1" />
                       <p className="text-xs text-pink-200 mb-1">Email Me</p>
-                      <p className="text-sm text-white break-all text-xs">
+                      <p className="text-sm text-white break-all ">
                         {me?.data?.email}
                       </p>
                     </div>
                     <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-3 border border-cyan-400/30">
                       <Globe className="w-4 h-4 text-green-400 mb-1" />
                       <p className="text-xs text-cyan-200 mb-1">Visit</p>
-                      <p className="text-sm text-white text-xs">
-                        {card.web_site}
-                      </p>
+                      <p className="text-sm text-white ">{card.web_site}</p>
                     </div>
                     <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl p-3 border border-green-400/30">
                       <MapPin className="w-4 h-4 text-orange-400 mb-1" />
