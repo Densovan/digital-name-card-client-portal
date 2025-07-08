@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import { CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Link from "next/link";
+
 import { ICard, User } from "@/types/card-type";
 
 const ModernCardServerSide = ({

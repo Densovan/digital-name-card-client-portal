@@ -1,9 +1,8 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { Download, Globe, Mail, MapPin, Pencil, Phone } from "lucide-react";
+import { Download, Globe, Mail, MapPin, Phone } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Link from "next/link";
 import { ICard, User } from "@/types/card-type";
 
 const MinimalCardServerSide = ({
