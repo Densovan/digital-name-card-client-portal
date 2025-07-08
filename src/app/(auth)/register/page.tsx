@@ -63,7 +63,6 @@ const LoginForm = () => {
     onSuccess: (data) => {
       const { accessToken, refreshToken, existUser } = data?.data;
       const roles = existUser?.roles || [];
-      console.log(existUser, data?.data);
 
       if (accessToken && refreshToken) {
         setTokens(accessToken, refreshToken, roles);

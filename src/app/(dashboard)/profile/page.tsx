@@ -39,8 +39,8 @@ export default function Component() {
   }
 
   return (
-    <div>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 flex items-center justify-center">
+    <div className="min-h-screen  bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="p-4 flex items-center justify-center">
         <div className="w-full max-w-md mx-auto overflow-hidden shadow-xl border-0">
           {/* Header Background */}
           <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 relative">
@@ -126,7 +126,7 @@ export default function Component() {
         </div>
       </div>
       {/* Show Name Card  */}
-      <div className="mt-10 w-full max-w-md mx-auto p-4">
+      <div className="w-full max-w-md mx-auto p-4">
         <div className="grid grid-cols-1 gap-6">
           {me?.data?.idCard?.map((card: CardItem, idx: number) => {
             return (

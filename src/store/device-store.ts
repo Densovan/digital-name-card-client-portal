@@ -40,7 +40,6 @@ export const useDeviceStore = create<DeviceState>()(
       } catch (e) {
         console.error("Failed to get IP:", e);
       }
-      console.log(result, "==result===");
 
       const info: DeviceInfo = {
         browser: result.browser.name || "Unknown",

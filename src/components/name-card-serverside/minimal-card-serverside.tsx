@@ -1,18 +1,18 @@
 import React from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Download, Globe, Mail, MapPin, Pencil, Phone } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
-import { CardItem, IUser } from "@/types/user-type";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Card, CardContent } from "../ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
+import { ICard, User } from "@/types/card-type";
 
-const MinimalCard = ({
+const MinimalCardServerSide = ({
   me,
   card,
   idx,
 }: {
-  me: IUser;
-  card: CardItem;
+  me: User;
+  card: ICard;
   idx: number;
 }) => {
   return (
@@ -22,31 +22,19 @@ const MinimalCard = ({
 
       <div key={idx}>
         <Card className="bg-white border-4 border-amber-600 shadow-xl relative">
-          <Link href={`/update-card/${card.id}`}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 text-amber-600 hover:text-amber-800"
-            >
-              <Pencil className="w-5 h-5" />
-            </Button>
-          </Link>
           <CardContent className="p-8">
             {/* Formal Header */}
             <div className="text-center border-b-2 border-amber-600 pb-6 mb-6">
               <div className="w-20 h-20 mx-auto mb-4 border-4 border-amber-600 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
                 <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                  <AvatarImage
-                    src={me?.data?.avatar}
-                    alt={me?.data?.user_name}
-                  />
+                  <AvatarImage src={me?.avatar} alt={me?.user_name} />
                   <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                    {me?.data?.user_name}
+                    {me?.user_name}
                   </AvatarFallback>
                 </Avatar>
               </div>
               <h1 className="text-2xl font-bold text-amber-900 mb-2 font-serif tracking-wide">
-                {me.data.full_name}
+                {me.full_name}
               </h1>
               <div className="bg-amber-600 text-white px-4 py-1 rounded-full inline-block">
                 <span className="text-sm font-medium">{card.job}</span>
@@ -84,7 +72,7 @@ const MinimalCard = ({
                   </span>
                 </div>
                 <span className="text-sm text-amber-800 break-all">
-                  {me?.data.email}
+                  {me?.email}
                 </span>
               </div>
               <div className="flex items-center justify-between border-b border-amber-200 pb-2">
@@ -123,19 +111,19 @@ const MinimalCard = ({
                     });
                   };
 
-                  const avatarBase64 = me?.data.avatar
-                    ? await toBase64(me?.data.avatar)
+                  const avatarBase64 = me?.avatar
+                    ? await toBase64(me?.avatar)
                     : "";
 
                   const vcard = [
                     "BEGIN:VCARD",
                     "VERSION:3.0",
-                    `FN:${me?.data.full_name}`,
-                    `N:${me?.data.full_name};;;;`,
+                    `FN:${me?.full_name}`,
+                    `N:${me?.full_name};;;;`,
                     `ORG:${card.company}`,
                     `TITLE:${card.job}`,
                     `TEL;TYPE=WORK,VOICE:${card.phone}`,
-                    `EMAIL;TYPE=PREF,INTERNET:${me?.data.email}`,
+                    `EMAIL;TYPE=PREF,INTERNET:${me?.email}`,
                     avatarBase64
                       ? `PHOTO;ENCODING=b;TYPE=JPEG:${avatarBase64}`
                       : "",
@@ -154,13 +142,14 @@ const MinimalCard = ({
                   const url = window.URL.createObjectURL(blob);
                   const link = document.createElement("a");
                   link.href = url;
-                  // link.download = `${me?.data.full_name.replace(
+                  // link.download = `${me?.full_name.replace(
                   //   " ",
                   //   "_"
                   // )}_${idx + 1}.vcf`;
-                  link.download = `${(
-                    me?.data.full_name ?? "Unnamed_User"
-                  ).replace(" ", "_")}_${idx + 1}.vcf`;
+                  link.download = `${(me?.full_name ?? "Unnamed_User").replace(
+                    " ",
+                    "_"
+                  )}_${idx + 1}.vcf`;
 
                   document.body.appendChild(link);
                   link.click();
@@ -201,4 +190,4 @@ const MinimalCard = ({
   );
 };
 
-export default MinimalCard;
+export default MinimalCardServerSide;

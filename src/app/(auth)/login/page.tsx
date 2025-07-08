@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { LogIn } from "lucide-react";
+import Link from "next/link";
 
 const loginSchema = z.object({
   user_name: z.string().min(2, "Username is required"),
@@ -52,7 +53,6 @@ const LoginForm = () => {
     onSuccess: (data) => {
       const { accessToken, refreshToken, existUser } = data.data;
       const roles = existUser?.roles || [];
-      console.log(existUser, data?.data);
 
       if (accessToken && refreshToken) {
         setTokens(accessToken, refreshToken, roles);
@@ -137,9 +137,11 @@ const LoginForm = () => {
 
         <div className="text-center text-sm text-gray-600">
           Do not have an account?{" "}
-          <button className="text-blue-600 hover:underline font-medium">
-            Sign up
-          </button>
+          <Link href="/register">
+            <button className="text-blue-600 hover:underline font-medium">
+              Sign up
+            </button>
+          </Link>
         </div>
       </CardContent>
     </Card>

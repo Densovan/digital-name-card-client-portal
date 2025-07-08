@@ -1,27 +1,17 @@
-import { CardItem, IUser } from "@/types/user-type";
 import React from "react";
-import { Card, CardContent } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  Badge,
-  Download,
-  Github,
-  Globe,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-} from "lucide-react";
-import { Button } from "./ui/button";
-import Link from "next/link";
+import { Card, CardContent } from "../ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge, Download, Globe, Mail, MapPin, Phone } from "lucide-react";
+import { Button } from "../ui/button";
+import { User, ICard } from "@/types/card-type";
 
-const CorporateCard = ({
+const CorporateCardService = ({
   me,
   card,
   idx,
 }: {
-  me: IUser;
-  card: CardItem;
+  me: User;
+  card: ICard;
   idx: number;
 }) => {
   return (
@@ -32,15 +22,6 @@ const CorporateCard = ({
 
         <div key={idx}>
           <Card className="bg-gradient-to-br from-purple-800/90 to-pink-800/90 border-0 shadow-2xl backdrop-blur-sm">
-            <Link href={`/update-card/${card.id}`}>
-              <Button
-                size="sm"
-                variant="outline"
-                className="absolute top-4 right-4 border-white text-white hover:bg-white/10 bg-white/20"
-              >
-                Edit
-              </Button>
-            </Link>
             <CardContent className="p-0 relative overflow-hidden">
               {/* Artistic Background Elements */}
               <div className="absolute inset-0">
@@ -55,19 +36,16 @@ const CorporateCard = ({
                   <div className="relative inline-block mb-4">
                     <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-pink-400 to-purple-400 rounded-2xl rotate-12 flex items-center justify-center shadow-lg">
                       <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                        <AvatarImage
-                          src={me?.data?.avatar}
-                          alt={me?.data?.user_name}
-                        />
+                        <AvatarImage src={me?.avatar} alt={me?.user_name} />
                         <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                          {me?.data?.user_name}
+                          {me?.user_name}
                         </AvatarFallback>
                       </Avatar>
                     </div>
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-pulse"></div>
                   </div>
                   <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 mb-2 tracking-tight">
-                    {me?.data.full_name}
+                    {me?.full_name}
                   </h1>
                   <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full inline-block transform -rotate-1">
                     <span className="text-sm font-bold">{card.job}</span>
@@ -98,9 +76,7 @@ const CorporateCard = ({
                   <div className="bg-gradient-to-br from-pink-500/20 to-orange-500/20 backdrop-blur-sm rounded-xl p-3 border border-pink-400/30">
                     <Mail className="w-4 h-4 text-cyan-400 mb-1" />
                     <p className="text-xs text-pink-200 mb-1">Email Me</p>
-                    <p className="text-sm text-white break-all ">
-                      {me?.data?.email}
-                    </p>
+                    <p className="text-sm text-white break-all ">{me?.email}</p>
                   </div>
                   <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-3 border border-cyan-400/30">
                     <Globe className="w-4 h-4 text-green-400 mb-1" />
@@ -110,7 +86,7 @@ const CorporateCard = ({
                   <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl p-3 border border-green-400/30">
                     <MapPin className="w-4 h-4 text-orange-400 mb-1" />
                     <p className="text-xs text-green-200 mb-1">Find Me</p>
-                    <p className="text-sm text-white text-xs">{card.address}</p>
+                    <p className="text-sm text-white">{card.address}</p>
                   </div>
                 </div>
 
@@ -132,19 +108,19 @@ const CorporateCard = ({
                         });
                       };
 
-                      const avatarBase64 = me?.data.avatar
-                        ? await toBase64(me?.data.avatar)
+                      const avatarBase64 = me?.avatar
+                        ? await toBase64(me?.avatar)
                         : "";
 
                       const vcard = [
                         "BEGIN:VCARD",
                         "VERSION:3.0",
-                        `FN:${me?.data.full_name}`,
-                        `N:${me?.data.full_name};;;;`,
+                        `FN:${me?.full_name}`,
+                        `N:${me?.full_name};;;;`,
                         `ORG:${card.company}`,
                         `TITLE:${card.job}`,
                         `TEL;TYPE=WORK,VOICE:${card.phone}`,
-                        `EMAIL;TYPE=PREF,INTERNET:${me?.data.email}`,
+                        `EMAIL;TYPE=PREF,INTERNET:${me?.email}`,
                         avatarBase64
                           ? `PHOTO;ENCODING=b;TYPE=JPEG:${avatarBase64}`
                           : "",
@@ -163,12 +139,12 @@ const CorporateCard = ({
                       const url = window.URL.createObjectURL(blob);
                       const link = document.createElement("a");
                       link.href = url;
-                      // link.download = `${me?.data.full_name.replace(
+                      // link.download = `${me?.full_name.replace(
                       //   " ",
                       //   "_"
                       // )}_${idx + 1}.vcf`;
                       link.download = `${(
-                        me?.data.full_name ?? "Unnamed_User"
+                        me?.full_name ?? "Unnamed_User"
                       ).replace(" ", "_")}_${idx + 1}.vcf`;
 
                       document.body.appendChild(link);
@@ -180,23 +156,25 @@ const CorporateCard = ({
                   >
                     <Download className="w-4 h-4 mr-2" />✨ Save My Contact ✨
                   </Button>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-2 border-cyan-400 text-cyan-300 hover:bg-cyan-400/20 font-bold bg-transparent"
-                    >
-                      <Linkedin className="w-3 h-3 mr-1" />
-                      LinkedIn
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-2 border-purple-400 text-purple-300 hover:bg-purple-400/20 font-bold bg-transparent"
-                    >
-                      <Github className="w-3 h-3 mr-1" />
-                      GitHub
-                    </Button>
+                  <div>
+                    {card.socialLinks.map((res, idx: number) => {
+                      return (
+                        <div className="" key={idx}>
+                          <Button
+                            variant="outline"
+                            className="w-full border-amber-600 text-amber-700 hover:bg-amber-50 font-serif bg-transparent"
+                          >
+                            <Avatar className="w-6 h-6">
+                              <AvatarImage src={res.icon} alt={res.platform} />
+                              <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                {res.platform}
+                              </AvatarFallback>
+                            </Avatar>
+                            {res.platform}
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -209,4 +187,4 @@ const CorporateCard = ({
   );
 };
 
-export default CorporateCard;
+export default CorporateCardService;

@@ -4,7 +4,7 @@ export interface IUser {
   message: string;
   data: UserData;
 }
-interface UserData {
+export interface UserData {
   id: string;
   full_name?: string | undefined;
   user_name: string;
@@ -19,6 +19,7 @@ interface UserData {
   idCard: CardItem[];
 }
 export interface CardItem {
+  user: IUser;
   id: string;
   gender: GenderType;
   dob: string;
