@@ -1,491 +1,176 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { FormValues } from "@/components/update-user-dialog";
 import { Badge } from "@/components/ui/badge";
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Globe,
-  Linkedin,
-  Github,
-  Download,
-  Star,
-  Zap,
-  Circle,
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { Mail, User, Edit3 } from "lucide-react";
+import { userRequest } from "@/lib/api/user-api";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import { CardItem, UserData } from "@/types/user-type";
+import ModernCard from "@/components/modern-card";
+import MinimalCard from "@/components/minimal-card";
+import CorporateCard from "@/components/corporate-card";
+import Link from "next/link";
+import UpdateUserDialog from "@/components/update-user-dialog";
 import { useState } from "react";
 
-const contactInfo = {
-  name: "Alex Johnson",
-  title: "Senior Frontend Developer",
-  company: "TechCorp Solutions",
-  phone: "+1 (555) 123-4567",
-  email: "alex.johnson@techcorp.com",
-  website: "www.alexjohnson.dev",
-  location: "San Francisco, CA",
-  linkedin: "linkedin.com/in/alexjohnson",
-  github: "github.com/alexjohnson",
-  bio: "Passionate frontend developer with 5+ years of experience in React, Next.js, and modern web technologies.",
-};
+export default function Component() {
+  const [open, setOpen] = useState(false);
+  const { GET_ME } = userRequest();
+  const {
+    data: me,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => GET_ME(),
+  });
 
-const styles = {
-  modern: {
-    name: "Modern",
-    icon: Circle,
-  },
-  classic: {
-    name: "Classic",
-    icon: Star,
-  },
-  creative: {
-    name: "Creative",
-    icon: Zap,
-  },
-};
+  if (isLoading) {
+    return (
+      <div className="flex flex-col space-y-3">
+        <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-[200px]" />
+        </div>
+      </div>
+    );
+  } else if (isError) {
+    return "error";
+  }
 
-export default function DigitalNameCard() {
-  const [currentStyle, setCurrentStyle] =
-    useState<keyof typeof styles>("modern");
-
-  const generateVCard = () => {
-    const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${contactInfo.name}
-ORG:${contactInfo.company}
-TITLE:${contactInfo.title}
-TEL:${contactInfo.phone}
-EMAIL:${contactInfo.email}
-URL:${contactInfo.website}
-ADR:;;${contactInfo.location};;;;
-NOTE:${contactInfo.bio}
-END:VCARD`;
-
-    const blob = new Blob([vcard], { type: "text/vcard" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${contactInfo.name.replace(" ", "_")}.vcf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+  const handleSave = (data: FormValues) => {
+    console.log("Updated user data:", data);
+    // Optional: Make API request to update user
   };
 
-  const ModernStyle = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      <div className="max-w-sm mx-auto space-y-4">
-        {/* Style Switcher */}
-        <div className="flex justify-center gap-2 mb-6">
-          {Object.entries(styles).map(([key, styleOption]) => {
-            const IconComponent = styleOption.icon;
-            return (
-              <Button
-                key={key}
-                variant={currentStyle === key ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentStyle(key as keyof typeof styles)}
-                className={
-                  currentStyle === key
-                    ? "bg-cyan-500 hover:bg-cyan-600 text-white"
-                    : "border-slate-600 text-slate-300 hover:bg-slate-800"
-                }
-              >
-                <IconComponent className="w-3 h-3 mr-1" />
-                {styleOption.name}
-              </Button>
-            );
-          })}
-        </div>
+  return (
+    <div className="min-h-screen  bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="p-4 flex items-center justify-center">
+        <UpdateUserDialog
+          user={me?.data as UserData}
+          onSave={handleSave}
+          open={open}
+          setOpen={setOpen}
+          // refetchUser={refetch}
+        />
+        <div className="w-full max-w-md mx-auto overflow-hidden shadow-xl border-0">
+          {/* Header Background */}
+          <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 relative">
+            <div className="absolute inset-0 bg-black/10"></div>
+          </div>
 
-        {/* Modern Card */}
-        <div className="bg-slate-800 border-slate-700 shadow-2xl rounded-2xl">
-          <CardContent className="p-0">
-            {/* Header Section with Geometric Design */}
-            <div className="bg-gradient-to-r from-cyan-500 to-blue-500 p-6 relative overflow-hidden rounded-t-2xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center mb-3">
-                  <span className="text-xl font-bold text-slate-800">
-                    {contactInfo.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </span>
-                </div>
-                <h1 className="text-2xl font-bold text-white mb-1">
-                  {contactInfo.name}
-                </h1>
-                <p className="text-cyan-100 font-medium">{contactInfo.title}</p>
+          <div className="relative px-6 pb-6">
+            {/* Avatar */}
+            <div className="flex justify-center -mt-16 mb-4">
+              <div className="relative">
+                <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
+                  <AvatarImage src={me?.data?.avatar} alt="Sarah Johnson" />
+                  <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                    {me?.data?.user_name}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
             </div>
 
-            {/* Content Section */}
-            <div className="p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                <span className="text-cyan-400 text-sm font-medium">
-                  {contactInfo.company}
+            {/* User Info */}
+            <div className="text-center space-y-4">
+              {/* Full Name */}
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                  {me?.data.full_name}
+                </h1>
+                <Badge variant="secondary" className="text-xs font-medium">
+                  Premium Member
+                </Badge>
+              </div>
+
+              {/* Username */}
+              <div className="flex items-center justify-center gap-2 text-gray-600">
+                <User className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  @{me?.data?.user_name}
                 </span>
               </div>
 
-              <p className="text-slate-300 text-sm leading-relaxed">
-                {contactInfo.bio}
-              </p>
+              {/* Email */}
+              <div className="flex items-center justify-center gap-2 text-gray-600">
+                <Mail className="w-4 h-4" />
+                <span className="text-sm">{me?.data?.email}</span>
+              </div>
 
-              {/* Contact Grid */}
-              <div className="grid grid-cols-2 gap-3 py-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3 h-3 text-cyan-400" />
-                    <span className="text-xs text-slate-400">Phone</span>
+              {/* Stats */}
+              <div className="flex justify-center gap-6 py-4 border-t border-gray-100">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-gray-900">127</div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Posts
                   </div>
-                  <p className="text-sm text-white font-mono">
-                    {contactInfo.phone}
-                  </p>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3 h-3 text-cyan-400" />
-                    <span className="text-xs text-slate-400">Email</span>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-gray-900">2.4K</div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Followers
                   </div>
-                  <p className="text-sm text-white break-all">
-                    {contactInfo.email}
-                  </p>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-3 h-3 text-cyan-400" />
-                    <span className="text-xs text-slate-400">Website</span>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-gray-900">891</div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Following
                   </div>
-                  <p className="text-sm text-white">{contactInfo.website}</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3 h-3 text-cyan-400" />
-                    <span className="text-xs text-slate-400">Location</span>
-                  </div>
-                  <p className="text-sm text-white">{contactInfo.location}</p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pt-4">
+              <div className="grid grid-cols-2 space-x-1 gap-3">
                 <Button
-                  onClick={generateVCard}
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+                  onClick={() => setOpen(true)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Save Contact
+                  <Edit3 className="w-4 h-4 mr-2" />
+                  Edit Profile
                 </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
-                  >
-                    <Linkedin className="w-3 h-3 mr-1" />
-                    LinkedIn
+                <Link href="/create-card">
+                  <Button className="w-full" variant="outline" size="icon">
+                    Create Card
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
-                  >
-                    <Github className="w-3 h-3 mr-1" />
-                    GitHub
-                  </Button>
-                </div>
+                </Link>
               </div>
             </div>
-          </CardContent>
+          </div>
         </div>
       </div>
-    </div>
-  );
-
-  const ClassicStyle = () => (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4">
-      <div className="max-w-sm mx-auto space-y-4">
-        {/* Style Switcher */}
-        <div className="flex justify-center gap-2 mb-6">
-          {Object.entries(styles).map(([key, styleOption]) => {
-            const IconComponent = styleOption.icon;
+      {/* Show Name Card  */}
+      <div className="w-full max-w-md mx-auto p-4">
+        <div className="grid grid-cols-1 gap-6">
+          {me?.data?.idCard?.map((card: CardItem, idx: number) => {
             return (
-              <Button
-                key={key}
-                variant={currentStyle === key ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentStyle(key as keyof typeof styles)}
-                className={
-                  currentStyle === key
-                    ? "bg-amber-600 hover:bg-amber-700 text-white"
-                    : "border-amber-300 text-amber-700 hover:bg-amber-50"
-                }
-              >
-                <IconComponent className="w-3 h-3 mr-1" />
-                {styleOption.name}
-              </Button>
-            );
-          })}
-        </div>
-
-        {/* Classic Card */}
-        <Card className="bg-white border-4 border-amber-600 shadow-xl">
-          <CardContent className="p-8">
-            {/* Formal Header */}
-            <div className="text-center border-b-2 border-amber-600 pb-6 mb-6">
-              <div className="w-20 h-20 mx-auto mb-4 border-4 border-amber-600 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-                <span className="text-xl font-bold text-amber-800 font-serif">
-                  {contactInfo.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </span>
-              </div>
-              <h1 className="text-2xl font-bold text-amber-900 mb-2 font-serif tracking-wide">
-                {contactInfo.name}
-              </h1>
-              <div className="bg-amber-600 text-white px-4 py-1 rounded-full inline-block">
-                <span className="text-sm font-medium">{contactInfo.title}</span>
-              </div>
-              <p className="text-amber-700 font-medium mt-2 font-serif">
-                {contactInfo.company}
-              </p>
-            </div>
-
-            {/* Bio Section */}
-            <div className="text-center mb-6">
-              <p className="text-amber-800 text-sm leading-relaxed font-serif italic">
-                {contactInfo.bio}
-              </p>
-            </div>
-
-            {/* Contact Information - Formal List */}
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center justify-between border-b border-amber-200 pb-2">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-900">
-                    Telephone
-                  </span>
-                </div>
-                <span className="text-sm text-amber-800 font-mono">
-                  {contactInfo.phone}
-                </span>
-              </div>
-              <div className="flex items-center justify-between border-b border-amber-200 pb-2">
-                <div className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-900">
-                    Electronic Mail
-                  </span>
-                </div>
-                <span className="text-sm text-amber-800 break-all">
-                  {contactInfo.email}
-                </span>
-              </div>
-              <div className="flex items-center justify-between border-b border-amber-200 pb-2">
-                <div className="flex items-center gap-3">
-                  <Globe className="w-4 h-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-900">
-                    Website
-                  </span>
-                </div>
-                <span className="text-sm text-amber-800">
-                  {contactInfo.website}
-                </span>
-              </div>
-              <div className="flex items-center justify-between border-b border-amber-200 pb-2">
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-900">
-                    Address
-                  </span>
-                </div>
-                <span className="text-sm text-amber-800">
-                  {contactInfo.location}
-                </span>
-              </div>
-            </div>
-
-            {/* Formal Actions */}
-            <div className="space-y-3">
-              <Button
-                onClick={generateVCard}
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white font-serif"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Add to Address Book
-              </Button>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-amber-600 text-amber-700 hover:bg-amber-50 font-serif bg-transparent"
-                >
-                  <Linkedin className="w-4 h-4 mr-1" />
-                  Professional Network
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-amber-600 text-amber-700 hover:bg-amber-50 font-serif bg-transparent"
-                >
-                  <Github className="w-4 h-4 mr-1" />
-                  Portfolio
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
-  const CreativeStyle = () => (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-orange-900 p-4">
-      <div className="max-w-sm mx-auto space-y-4">
-        {/* Style Switcher */}
-        <div className="flex justify-center gap-2 mb-6">
-          {Object.entries(styles).map(([key, styleOption]) => {
-            const IconComponent = styleOption.icon;
-            return (
-              <Button
-                key={key}
-                variant={currentStyle === key ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentStyle(key as keyof typeof styles)}
-                className={
-                  currentStyle === key
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
-                    : "border-purple-400 text-purple-300 hover:bg-purple-900/50"
-                }
-              >
-                <IconComponent className="w-3 h-3 mr-1" />
-                {styleOption.name}
-              </Button>
-            );
-          })}
-        </div>
-
-        {/* Creative Card */}
-        <Card className="bg-gradient-to-br from-purple-800/90 to-pink-800/90 border-0 shadow-2xl backdrop-blur-sm">
-          <CardContent className="p-0 relative overflow-hidden">
-            {/* Artistic Background Elements */}
-            <div className="absolute inset-0">
-              <div className="absolute top-0 left-0 w-40 h-40 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full -translate-x-20 -translate-y-20"></div>
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-full translate-x-16 translate-y-16"></div>
-              <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-gradient-to-br from-green-400/20 to-emerald-400/20 rounded-full -translate-x-12 -translate-y-12"></div>
-            </div>
-
-            <div className="relative z-10 p-6">
-              {/* Creative Header */}
-              <div className="text-center mb-6">
-                <div className="relative inline-block mb-4">
-                  <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-pink-400 to-purple-400 rounded-2xl rotate-12 flex items-center justify-center shadow-lg">
-                    <span className="text-2xl font-black text-white -rotate-12">
-                      {contactInfo.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </span>
+              <div key={idx}>
+                {card.card_type === "Minimal" && (
+                  <div>
+                    <MinimalCard me={me} card={card} idx={idx} />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-pulse"></div>
-                </div>
-                <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 mb-2 tracking-tight">
-                  {contactInfo.name}
-                </h1>
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full inline-block transform -rotate-1">
-                  <span className="text-sm font-bold">{contactInfo.title}</span>
-                </div>
+                )}
+                {card.card_type === "Modern" && (
+                  <div>
+                    <ModernCard me={me} card={card} idx={idx} />
+                  </div>
+                )}
+                {card.card_type === "Corporate" && (
+                  <div>
+                    <CorporateCard me={me} card={card} idx={idx} />
+                  </div>
+                )}
               </div>
-
-              {/* Company Badge */}
-              <div className="text-center mb-4">
-                <Badge className="bg-gradient-to-r from-cyan-400 to-blue-400 text-white border-0 px-3 py-1 transform rotate-1">
-                  {contactInfo.company}
-                </Badge>
-              </div>
-
-              {/* Bio with Creative Styling */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-white/20">
-                <p className="text-white text-sm leading-relaxed text-center font-medium">
-                  {contactInfo.bio}
-                </p>
-              </div>
-
-              {/* Contact Info - Creative Layout */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-xl p-3 border border-purple-400/30">
-                  <Phone className="w-4 h-4 text-yellow-400 mb-1" />
-                  <p className="text-xs text-purple-200 mb-1">Call Me</p>
-                  <p className="text-sm text-white font-mono text-xs">
-                    {contactInfo.phone}
-                  </p>
-                </div>
-                <div className="bg-gradient-to-br from-pink-500/20 to-orange-500/20 backdrop-blur-sm rounded-xl p-3 border border-pink-400/30">
-                  <Mail className="w-4 h-4 text-cyan-400 mb-1" />
-                  <p className="text-xs text-pink-200 mb-1">Email Me</p>
-                  <p className="text-sm text-white break-all text-xs">
-                    {contactInfo.email}
-                  </p>
-                </div>
-                <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-3 border border-cyan-400/30">
-                  <Globe className="w-4 h-4 text-green-400 mb-1" />
-                  <p className="text-xs text-cyan-200 mb-1">Visit</p>
-                  <p className="text-sm text-white text-xs">
-                    {contactInfo.website}
-                  </p>
-                </div>
-                <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl p-3 border border-green-400/30">
-                  <MapPin className="w-4 h-4 text-orange-400 mb-1" />
-                  <p className="text-xs text-green-200 mb-1">Find Me</p>
-                  <p className="text-sm text-white text-xs">
-                    {contactInfo.location}
-                  </p>
-                </div>
-              </div>
-
-              {/* Creative Action Buttons */}
-              <div className="space-y-3">
-                <Button
-                  onClick={generateVCard}
-                  className="w-full bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-500 text-white font-bold border-0 shadow-lg transform hover:scale-105 transition-transform"
-                >
-                  <Download className="w-4 h-4 mr-2" />✨ Save My Contact ✨
-                </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-2 border-cyan-400 text-cyan-300 hover:bg-cyan-400/20 font-bold bg-transparent"
-                  >
-                    <Linkedin className="w-3 h-3 mr-1" />
-                    LinkedIn
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-2 border-purple-400 text-purple-300 hover:bg-purple-400/20 font-bold bg-transparent"
-                  >
-                    <Github className="w-3 h-3 mr-1" />
-                    GitHub
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
-  );
-
-  return (
-    <>
-      {currentStyle === "modern" && <ModernStyle />}
-      {currentStyle === "classic" && <ClassicStyle />}
-      {currentStyle === "creative" && <CreativeStyle />}
-    </>
   );
 }
